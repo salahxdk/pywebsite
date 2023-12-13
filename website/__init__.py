@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
+from flask_login import LoginManager #final step in using the flask_login module, 
+
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -21,6 +23,14 @@ def create_app():
 
   with app.app_context():
     create_database(app)
+  
+  login_manager = LoginManager() 
+  login_manager.login_view = 'auth.login' #where should Flask redirect users if login is required, auth.login is the ROUTE, *auth/login
+  login_manager.init_app(app)#telling login manager what app to use
+
+  @login_manager.user_loader #telling flask how a user is LOADED 
+  def load_user(id):
+    return User.query.get(int(id)) #similar to User.filter_by but get uses the primary key to search by default
 
 
   return app
